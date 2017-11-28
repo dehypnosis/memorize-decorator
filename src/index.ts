@@ -82,7 +82,6 @@ function buildIntermediateFunction(
 
   function fn(this: any, ...args: any[]): any {
     let keys = [this, originalFn, JSON.stringify(args)];
-    console.log(keys);
 
     let [hasCache, cache] = cacheMap.hasAndGet(keys);
 
