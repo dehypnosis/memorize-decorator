@@ -44,7 +44,7 @@ function memorize(fn, options) {
 exports.memorize = memorize;
 exports.default = memorize;
 function buildIntermediateFunction(originalFn, _a) {
-    var _b = (_a === void 0 ? {} : _a).ttl, ttl = _b === void 0 ? Infinity : _b;
+    var _b = (_a === void 0 ? {} : _a).ttl, ttl = _b === void 0 ? 3600000 : _b;
     var cacheMap = new multikey_map_1.default();
     var name = originalFn.name;
     var nameDescriptor = Object.getOwnPropertyDescriptor(fn, 'name');
@@ -60,8 +60,7 @@ function buildIntermediateFunction(originalFn, _a) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var keys = [this, originalFn, JSON.stringify(args)];
-        console.log(keys);
+        var keys = [this, JSON.stringify(args)];
         var _a = cacheMap.hasAndGet(keys), hasCache = _a[0], cache = _a[1];
         if (!hasCache) {
             cache = originalFn.apply(this, args);
@@ -79,7 +78,16 @@ function buildIntermediateFunction(originalFn, _a) {
                 }
             }
         }
-        return cache;
+        // return cloned object
+        return cache.then
+            ? cache.then(function (cache) {
+                return (typeof cache == 'object' && cache !== null)
+                    ? JSON.parse(JSON.stringify(cache))
+                    : cache;
+            })
+            : (typeof cache == 'object' && cache !== null)
+                ? JSON.parse(JSON.stringify(cache))
+                : cache;
     }
 }
 //# sourceMappingURL=index.js.map

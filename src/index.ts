@@ -65,7 +65,7 @@ export default memorize;
 
 function buildIntermediateFunction(
   originalFn: Function,
-  {ttl = Infinity}: MemorizeOptions = {},
+  {ttl = 3600000}: MemorizeOptions = {},
 ) {
   let cacheMap = new MultikeyMap<any[], any>();
 
@@ -81,7 +81,7 @@ function buildIntermediateFunction(
   return fn;
 
   function fn(this: any, ...args: any[]): any {
-    let keys = [this, originalFn, JSON.stringify(args)];
+    let keys = [this, JSON.stringify(args)];
 
     let [hasCache, cache] = cacheMap.hasAndGet(keys);
 
@@ -101,6 +101,15 @@ function buildIntermediateFunction(
       }
     }
 
-    return cache;
+    // return cloned object
+    return cache.then
+      ? cache.then((cache :any) =>
+        (typeof cache == 'object' && cache !== null)
+          ? JSON.parse(JSON.stringify(cache))
+          : cache
+      )
+      : (typeof cache == 'object' && cache !== null)
+        ? JSON.parse(JSON.stringify(cache))
+        : cache
   }
 }
